@@ -10,6 +10,7 @@ export function HomepageContainer() {
     const isDecrease = (value) => {
         return value < -1;
     };
+    console.log(uniqueCoins);
     useEffect(() => {
         if (Object.keys(spots).length) {
             setExchanges(Object.keys(spots));

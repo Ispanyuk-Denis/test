@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const findMinIndexOfArr = (data, keys) => {
     let minIndex = 0;
@@ -12,21 +12,25 @@ const findMinIndexOfArr = (data, keys) => {
     return minIndex
 }
 
-const getCoins = (data) => {
+function sortData (data, param) {
+    return new Promise((resolve) => {
+        const result = data.sort((a,b) => a[param] < b[param]);
+        resolve(result)
+    })
+}
+
+const getCoins = async (data) => {
     if(!Object.keys(data).length) return [];
     const dataKeys = Object.keys(data);
+    const spread = {};
     const minIndex = findMinIndexOfArr(data, dataKeys);
     const lowestExchange = dataKeys.splice(minIndex, 1);
-
     const huobiExchange = data[lowestExchange].filter((item) => {
         return data[dataKeys].find((item2) => item["symbol"] === item2["symbol"]);
     })
-    huobiExchange.sort((a,b) => a["symbol"] < b["symbol"]);
     const binanceExchange = data[dataKeys].filter((item) => {
         return huobiExchange.find((item2) => item["symbol"] === item2["symbol"]);
     })
-    binanceExchange.sort((a,b) => a["symbol"] < b["symbol"]);
-    const spread = {};
     binanceExchange.map((coin, index) => {
         if(coin["close"] < huobiExchange[index]["close"]){
             spread[coin["symbol"]]=(((coin["close"]/huobiExchange[index]["close"])-1)*100).toFixed(2)
@@ -34,11 +38,11 @@ const getCoins = (data) => {
             spread[coin["symbol"]]=(((huobiExchange[index]["close"]/coin["close"])-1)*100).toFixed(2)
         }
     })
-    console.log("binanceExchange", binanceExchange);
-    console.log("huobiExchange", huobiExchange);
-    const result = huobiExchange.map((item, index) => ({
+    const sortHoubiExchange = await sortData(huobiExchange, "symbol");
+    const sortBinanceExchange = await sortData(binanceExchange, "symbol");
+    const result = sortHoubiExchange.map((item, index) => ({
         coin: item["symbol"],
-        binance: binanceExchange[index]["close"],
+        binance: sortBinanceExchange[index]["close"],
         huobi: item["close"],
         spread: spread[item["symbol"]]
     }))
@@ -47,11 +51,9 @@ const getCoins = (data) => {
 
 export default function useCoins (data) {
     const [uniqueCoins, setUniqueCoins] = useState([]);
-    useEffect(() => {
-        if(!uniqueCoins.length){
-            setUniqueCoins(getCoins(data));
-        }
-    }, [data])
+    if(!uniqueCoins.length){
+        getCoins(data).then((resolve) => resolve.length && setUniqueCoins(resolve));
+    }
 
     return [uniqueCoins, setUniqueCoins]
 }
