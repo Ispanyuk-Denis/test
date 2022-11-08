@@ -8,7 +8,7 @@ export function HomepageContainer() {
     const [exchanges, setExchanges] = useState([]);
     const [uniqueCoins, setUniqueCoins] = useCoins(spots);
     const isDecrease = (value) => {
-        return value < 1;
+        return value < -1;
     };
     useEffect(() => {
         if (Object.keys(spots).length) {
