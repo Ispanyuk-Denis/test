@@ -1,40 +1,45 @@
 import React from "react";
+import { Button } from "../../Components";
 import * as Styled from "./style"
 
-export function HomePage({ getSpotData, uniqueCoins, exchanges, getSortSpread, isDecrease }) {
+export function HomePage({ getSpotData, uniqueCoins, exchanges, getSortSpread, isDecrease, rowIndexClicked, handlerRowClicked }) {
     return (
-        <div>
-            <button onClick={getSpotData}>Get Data</button>
+        <Styled.Container>
+            <Button onClick={getSpotData}>Get Data</Button>
 
-            {exchanges.length ? <table>
+            {exchanges.length ? <Styled.Table>
               <thead>
                 <tr>
-                    <td>&nbsp;</td>
+                    <Styled.Cell>&nbsp;</Styled.Cell>
                     {exchanges.map((exchange, index) => (
-                        <td key={index}>{exchange}</td>
+                        <Styled.Cell key={index}>{exchange}</Styled.Cell>
                     ))}
-                    <td onClick={getSortSpread}>Spread</td>
+                    <Styled.Cell onClick={() => getSortSpread("spread")}>Spread</Styled.Cell>
                 </tr>
               </thead>
               <tbody>
                 {
-                  uniqueCoins.length && uniqueCoins.map((item, index) => (<tr key={index}>
-                    <td>
+                  uniqueCoins.length && uniqueCoins.map((item, index) => (<Styled.TableRow
+                    isActive={rowIndexClicked === index} 
+                    key={index}
+                    onClick={handlerRowClicked(index)} 
+                  >
+                    <Styled.Cell>
                       {item.coin}
-                    </td>
-                    <td>
+                    </Styled.Cell>
+                    <Styled.Cell>
                       {item.binance}
-                    </td>
-                    <td>
+                    </Styled.Cell>
+                    <Styled.Cell>
                       {item.huobi}
-                    </td>
+                    </Styled.Cell>
                     <Styled.SpreadStyled isDecrease={isDecrease(item.spread)}>
                       {item.spread}
                     </Styled.SpreadStyled>
-                  </tr>))
+                  </Styled.TableRow>))
                 }
               </tbody>
-            </table> : null}
-        </div>
+            </Styled.Table> : null}
+        </Styled.Container>
     );
 }

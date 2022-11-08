@@ -8,10 +8,22 @@ export default function SpotContextApp({ children }) {
     const spotData = {};
 
     const getSpotData = async () => {
-        const { data:huobi } = await axios.get("https://api.cryptorank.io/v0/exchanges/huobipro/tickers");
-        spotData.huobi = huobi;
         const { data:binance } = await axios.get("https://api.cryptorank.io/v0/exchanges/binance/tickers");
-        spotData.binance = binance;
+        spotData.binance = {
+            data: binance.reduce((acc, item) => {
+                acc[item["symbol"]] = item["close"];
+                return acc
+            }, {}),
+            count: binance.length
+        };
+        const { data:huobi } = await axios.get("https://api.cryptorank.io/v0/exchanges/huobipro/tickers");
+        spotData.huobi = {
+            data: huobi.reduce((acc, item) => {
+                acc[item["symbol"]] = item["close"];
+                return acc
+            }, {}),
+            count: huobi.length
+        };
         setSpots(spotData);
     }
 

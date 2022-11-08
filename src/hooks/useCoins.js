@@ -1,59 +1,59 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const findMinIndexOfArr = (data, keys) => {
-    let minIndex = 0;
-    for(let i = 1; i < keys.length; i++){
-        const exchange1 = keys[i-1];
-        const exchange2 = keys[i];
-        if(data[exchange1].length > data[exchange2].length){
-            minIndex = i;
-        }
-    }
-    return minIndex
-}
-
-function sortData (data, param) {
-    return new Promise((resolve) => {
-        const result = data.sort((a,b) => a[param] < b[param]);
-        resolve(result)
+const getSameCoins = (data, minExchange, leftover) => {
+    const minExchangePairs = Object.keys(data[minExchange].data);
+    const leftoverPairs = Object.keys(data[leftover[0]].data);
+    const pairs = minExchangePairs.filter((pair) => {
+        return leftoverPairs.find((pair2) => pair2 === pair)
     })
+    return pairs
 }
 
-const getCoins = async (data) => {
+const getSpread = (data, pairs) => {
+    const result = {};
+    const keys = Object.keys(data);
+    console.log("data", data)
+    pairs.map((pair) => {
+        const value1 = data[keys[0]][pair]; 
+        const value2 = data[keys[1]][pair]; 
+        if( value1 < value2){
+            return result[pair] = (((value1/value2)-1)*100).toFixed(3)
+        }else{
+            return result[pair] = (((value2/value1)-1)*100).toFixed(3)
+        }
+    })
+    return result
+}
+
+const getCoins = (data) => {
     if(!Object.keys(data).length) return [];
     const dataKeys = Object.keys(data);
-    const spread = {};
-    const minIndex = findMinIndexOfArr(data, dataKeys);
-    const lowestExchange = dataKeys.splice(minIndex, 1);
-    const huobiExchange = data[lowestExchange].filter((item) => {
-        return data[dataKeys].find((item2) => item["symbol"] === item2["symbol"]);
-    })
-    const binanceExchange = data[dataKeys].filter((item) => {
-        return huobiExchange.find((item2) => item["symbol"] === item2["symbol"]);
-    })
-    binanceExchange.map((coin, index) => {
-        if(coin["close"] < huobiExchange[index]["close"]){
-            spread[coin["symbol"]]=(((coin["close"]/huobiExchange[index]["close"])-1)*100).toFixed(2)
-        }else{
-            spread[coin["symbol"]]=(((huobiExchange[index]["close"]/coin["close"])-1)*100).toFixed(2)
-        }
-    })
-    const sortHoubiExchange = await sortData(huobiExchange, "symbol");
-    const sortBinanceExchange = await sortData(binanceExchange, "symbol");
-    const result = sortHoubiExchange.map((item, index) => ({
-        coin: item["symbol"],
-        binance: sortBinanceExchange[index]["close"],
-        huobi: item["close"],
-        spread: spread[item["symbol"]]
+    const arrOfCoinsLength = dataKeys.map((exchange, index) => data[exchange].count);
+    const minCoinsLength = Math.min.apply(Math, arrOfCoinsLength);
+    const minExchange = dataKeys.find((exchange) => data[exchange].count === minCoinsLength);
+    const leftover = [dataKeys.join('').split(minExchange).join('')];
+    const exchanges = {
+        [minExchange]: data[minExchange].data,
+        [leftover[0]]: data[leftover[0]].data
+    }
+    const pairs = getSameCoins(data, minExchange, leftover);
+    const spread = getSpread(exchanges, pairs);
+    const result = pairs.map((pair) => ({
+        coin: pair,
+        binance: exchanges[leftover[0]][pair],
+        huobi: exchanges[minExchange][pair],
+        spread: spread[pair]
     }))
     return result
 }
 
 export default function useCoins (data) {
     const [uniqueCoins, setUniqueCoins] = useState([]);
-    if(!uniqueCoins.length){
-        getCoins(data).then((resolve) => resolve.length && setUniqueCoins(resolve));
-    }
-
-    return [uniqueCoins, setUniqueCoins]
+    useMemo(() => {
+        if(data){
+            const result = getCoins(data);
+            setUniqueCoins(result)
+        }
+    }, [data])
+    return [uniqueCoins, setUniqueCoins, getCoins]
 }
