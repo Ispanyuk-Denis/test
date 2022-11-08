@@ -1,6 +1,7 @@
 import React from "react";
+import * as Styled from "./style"
 
-export function HomePage({ getSpotData, uniqueCoins, exchanges, getSortSpread }) {
+export function HomePage({ getSpotData, uniqueCoins, exchanges, getSortSpread, isDecrease }) {
     return (
         <div>
             <button onClick={getSpotData}>Get Data</button>
@@ -27,9 +28,9 @@ export function HomePage({ getSpotData, uniqueCoins, exchanges, getSortSpread })
                     <td>
                       {item.huobi}
                     </td>
-                    <td>
+                    <Styled.SpreadStyled isDecrease={isDecrease(item.spread)}>
                       {item.spread}
-                    </td>
+                    </Styled.SpreadStyled>
                   </tr>))
                 }
               </tbody>

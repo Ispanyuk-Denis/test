@@ -20,12 +20,12 @@ const getCoins = (data) => {
 
     const huobiExchange = data[lowestExchange].filter((item) => {
         return data[dataKeys].find((item2) => item["symbol"] === item2["symbol"]);
-    }).sort((a,b) => a["symbol"] < b["symbol"]);
-
+    })
+    huobiExchange.sort((a,b) => a["symbol"] < b["symbol"]);
     const binanceExchange = data[dataKeys].filter((item) => {
         return huobiExchange.find((item2) => item["symbol"] === item2["symbol"]);
-    }).sort((a,b) => a["symbol"] < b["symbol"]);
-
+    })
+    binanceExchange.sort((a,b) => a["symbol"] < b["symbol"]);
     const spread = {};
     binanceExchange.map((coin, index) => {
         if(coin["close"] < huobiExchange[index]["close"]){
@@ -34,6 +34,8 @@ const getCoins = (data) => {
             spread[coin["symbol"]]=(((huobiExchange[index]["close"]/coin["close"])-1)*100).toFixed(2)
         }
     })
+    console.log("binanceExchange", binanceExchange);
+    console.log("huobiExchange", huobiExchange);
     const result = huobiExchange.map((item, index) => ({
         coin: item["symbol"],
         binance: binanceExchange[index]["close"],
