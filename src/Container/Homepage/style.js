@@ -9,6 +9,7 @@ export const Container = styled.div`
 
 export const SpreadStyled = styled.td`
     color: ${({isDecrease}) => isDecrease ? "green" : "red"};
+    padding:10px;
 `
 
 export const TableRow = styled.tr`
@@ -22,5 +23,46 @@ export const Table = styled.table`
 `
 
 export const Cell = styled.td`
-    padding: 5px 10px;
+    padding:10px;
+`
+
+export const CellUsd = styled.td`
+    padding:10px;
+    text-align: right;
+`
+export const CellAsk = styled.td`
+    background-color: ${({binance, huobi}) => {
+        if(binance){
+            return `#d5f8d5`;
+        }
+        if(huobi){
+            return `#d5f8d5`;
+        }
+        return 'transparent'
+    }};
+    padding:10px;
+`
+export const CellBid = styled.td`
+background-color: ${({binance, huobi}) => {
+    if(huobi){
+        return `#ffd4d4`;
+    }
+    if(binance){
+        return `#ffd4d4`;
+    }
+    return 'transparent'
+}};
+    padding:10px;
+`
+export const CellTMBid = styled.td`
+background-color: ${({binance, huobi}) => {
+    if(binance){
+        return `#d5f8d5`;
+    }
+    if(huobi){
+        return `#d5f8d5`;
+    }
+    return '#ffd4d4'
+}};
+    padding:10px;
 `

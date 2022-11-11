@@ -1,45 +1,47 @@
 import React from "react";
-import { Button } from "../../Components";
-import * as Styled from "./style"
+import { Button, Tab } from "../../Components";
+import * as Styled from "./style";
+import { MakerAndMaker } from "./TypeOfTable/M&M";
+import { TakerAndMaker } from "./TypeOfTable/T&M";
 
-export function HomePage({ getSpotData, uniqueCoins, exchanges, getSortSpread, isDecrease, rowIndexClicked, handlerRowClicked }) {
+export function HomePage({
+    getSpotData,
+    uniqueCoins,
+    exchanges,
+    getSortSpread,
+    isDecrease,
+    rowIndexClicked,
+    handlerRowClicked,
+}) {
     return (
         <Styled.Container>
             <Button onClick={getSpotData}>Get Data</Button>
-
-            {exchanges.length ? <Styled.Table>
-              <thead>
-                <tr>
-                    <Styled.Cell>&nbsp;</Styled.Cell>
-                    {exchanges.map((exchange, index) => (
-                        <Styled.Cell key={index}>{exchange}</Styled.Cell>
-                    ))}
-                    <Styled.Cell onClick={() => getSortSpread("spread")}>Spread</Styled.Cell>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  uniqueCoins.length && uniqueCoins.map((item, index) => (<Styled.TableRow
-                    isActive={rowIndexClicked === index} 
-                    key={index}
-                    onClick={handlerRowClicked(index)} 
-                  >
-                    <Styled.Cell>
-                      {item.coin}
-                    </Styled.Cell>
-                    <Styled.Cell>
-                      {item.binance}
-                    </Styled.Cell>
-                    <Styled.Cell>
-                      {item.huobi}
-                    </Styled.Cell>
-                    <Styled.SpreadStyled isDecrease={isDecrease(item.spread)}>
-                      {item.spread}
-                    </Styled.SpreadStyled>
-                  </Styled.TableRow>))
-                }
-              </tbody>
-            </Styled.Table> : null}
+            {exchanges.length ? (
+                <>
+                    <Tab>
+                        <Tab.TabPane tab={"Maker&Maker"}>
+                            <MakerAndMaker
+                                uniqueCoins={uniqueCoins}
+                                exchanges={exchanges}
+                                getSortSpread={getSortSpread}
+                                isDecrease={isDecrease}
+                                rowIndexClicked={rowIndexClicked}
+                                handlerRowClicked={handlerRowClicked}
+                            />
+                        </Tab.TabPane>
+                        <Tab.TabPane tab={"Taker&Maker"}>
+                            <TakerAndMaker
+                                uniqueCoins={uniqueCoins}
+                                exchanges={exchanges}
+                                getSortSpread={getSortSpread}
+                                isDecrease={isDecrease}
+                                rowIndexClicked={rowIndexClicked}
+                                handlerRowClicked={handlerRowClicked}
+                            />
+                        </Tab.TabPane>
+                    </Tab>
+                </>
+            ) : null}
         </Styled.Container>
     );
 }
